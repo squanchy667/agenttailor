@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
+import apiRouter from './routes/index.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
 config();
@@ -12,7 +14,7 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
+// Health check endpoint (unprotected)
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
@@ -21,14 +23,8 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// API version info
-app.get('/api/v1/info', (_req, res) => {
-  res.json({
-    name: 'AgentTailor API',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development',
-  });
-});
+// Mount API routes
+app.use('/api', apiRouter);
 
 // 404 handler
 app.use((_req, res) => {
@@ -40,23 +36,8 @@ app.use((_req, res) => {
   });
 });
 
-// Error handler
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    console.error('Server error:', err);
-    res.status(500).json({
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'An unexpected error occurred',
-      },
-    });
-  }
-);
+// Global error handler
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
