@@ -8,3 +8,4 @@ export * from './constants.js';
 export * from './schemas/chunk.js';
 export * from './schemas/user.js';
 export * from './schemas/project.js';
+export * from './schemas/embedding.js';
