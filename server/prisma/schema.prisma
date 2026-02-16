@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+enum DocumentType {
+  PDF
+  DOCX
+  MARKDOWN
+  TXT
+  CODE
+}
+
+enum DocumentStatus {
+  PROCESSING
+  READY
+  ERROR
+}
+
+enum TargetPlatform {
+  CHATGPT
+  CLAUDE
+}
+
+// Models
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  clerkId   String   @unique
+  plan      Plan     @default(FREE)
+  settings  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects          Project[]
+  tailoringSessions TailoringSession[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents         Document[]
+  tailoringSessions TailoringSession[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+model Document {
+  id         String         @id @default(cuid())
+  projectId  String
+  filename   String
+  mimeType   String
+  type       DocumentType
+  status     DocumentStatus @default(PROCESSING)
+  chunkCount Int            @default(0)
+  metadata   Json?
+  sizeBytes  Int
+  filePath   String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  chunks  Chunk[]
+
+  @@index([projectId])
+  @@map("documents")
+}
+
+model Chunk {
+  id         String   @id @default(cuid())
+  documentId String
+  content    String   @db.Text
+  position   Int
+  metadata   Json?
+  tokenCount Int
+  createdAt  DateTime @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("chunks")
+}
+
+model TailoringSession {
+  id               String         @id @default(cuid())
+  userId           String
+  projectId        String
+  taskInput        String         @db.Text
+  assembledContext String         @db.Text
+  targetPlatform   TargetPlatform
+  tokenCount       Int
+  qualityScore     Float?
+  metadata         Json?
+  createdAt        DateTime       @default(now())
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  webSearchResults WebSearchResult[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@map("tailoring_sessions")
+}
+
+model WebSearchResult {
+  id             String   @id @default(cuid())
+  sessionId      String
+  query          String
+  url            String
+  title          String
+  snippet        String   @db.Text
+  relevanceScore Float
+  createdAt      DateTime @default(now())
+
+  session TailoringSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("web_search_results")
+}
