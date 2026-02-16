@@ -3,6 +3,7 @@ import { clerkAuth } from '../middleware/auth.js';
 import authRoutes from './auth.js';
 import projectRoutes from './projects.js';
 import documentRoutes from './documents.js';
+import searchRoutes from './search.js';
 
 /**
  * Central router that mounts all API routes
@@ -18,6 +19,7 @@ router.use(clerkAuth);
 router.use('/auth', authRoutes);
 router.use('/projects', projectRoutes);
 router.use('/projects', documentRoutes);
+router.use('/search', searchRoutes);
 
 // API version info (unprotected)
 router.get('/info', (_req, res) => {
