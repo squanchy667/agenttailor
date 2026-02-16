@@ -1,0 +1,46 @@
+{
+  "name": "agenttailor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-platform AI agent tailoring add-on for ChatGPT and Claude",
+  "workspaces": [
+    "shared",
+    "server",
+    "dashboard",
+    "extension",
+    "mcp-server",
+    "landing"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,dashboard \"npm run dev -w server\" \"npm run dev -w dashboard\"",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w dashboard && npm run build -w extension && npm run build -w mcp-server && npm run build -w landing",
+    "typecheck": "tsc -b",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "clean": "rm -rf node_modules shared/node_modules server/node_modules dashboard/node_modules extension/node_modules mcp-server/node_modules landing/node_modules shared/dist server/dist dashboard/dist extension/dist mcp-server/dist landing/dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@vitest/ui": "^1.2.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

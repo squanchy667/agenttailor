@@ -1,0 +1,7 @@
+/**
+ * @agenttailor/shared
+ * Shared types, schemas, and constants for AgentTailor
+ */
+
+// Barrel export - will be populated as we add schemas and types
+export * from './constants.js';

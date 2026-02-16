@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "references": [
+    { "path": "./shared" },
+    { "path": "./server" },
+    { "path": "./dashboard" },
+    { "path": "./extension" },
+    { "path": "./mcp-server" },
+    { "path": "./landing" }
+  ],
+  "files": []
+}
