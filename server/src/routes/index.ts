@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { clerkAuth } from '../middleware/auth.js';
 import authRoutes from './auth.js';
 import projectRoutes from './projects.js';
+import documentRoutes from './documents.js';
 
 /**
  * Central router that mounts all API routes
@@ -16,6 +17,7 @@ router.use(clerkAuth);
 // Mount route modules
 router.use('/auth', authRoutes);
 router.use('/projects', projectRoutes);
+router.use('/projects', documentRoutes);
 
 // API version info (unprotected)
 router.get('/info', (_req, res) => {
