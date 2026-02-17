@@ -2,16 +2,18 @@
  * Semantic search routes
  * POST /api/search/docs    — Full search with content hydration
  * POST /api/search/suggest — Lightweight IDs + scores only
+ * POST /api/search/web     — Web search with Tavily/Brave
  */
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { SearchRequestSchema, SuggestRequestSchema } from '@agenttailor/shared';
+import { SearchRequestSchema, SuggestRequestSchema, WebSearchQuerySchema } from '@agenttailor/shared';
 import { authenticatedUser } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { searchDocuments } from '../services/searchService.js';
 import { createEmbedder } from '../services/embedding/embedder.js';
 import { createVectorStore } from '../services/vectorStore/index.js';
 import { prisma } from '../lib/prisma.js';
+import { webSearch } from '../services/search/index.js';
 
 const router = Router();
 
@@ -97,6 +99,33 @@ router.post(
       console.error('Suggest error:', error);
       return res.status(500).json({
         error: { code: 'INTERNAL_SERVER_ERROR', message: 'Suggest failed' },
+      });
+    }
+  },
+);
+
+/**
+ * POST /api/search/web
+ * Web search using Tavily (primary) or Brave (fallback)
+ */
+router.post(
+  '/web',
+  authenticatedUser,
+  validateRequest(WebSearchQuerySchema, 'body'),
+  async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+        });
+      }
+
+      const result = await webSearch(req.body);
+      return res.json({ data: result });
+    } catch (error) {
+      console.error('Web search error:', error);
+      return res.status(500).json({
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Web search failed' },
       });
     }
   },
