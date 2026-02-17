@@ -3,10 +3,12 @@
  * States: idle | tailoring | preview | injected | error
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Platform } from '@agenttailor/shared';
 import type { ExtensionMessage } from '../shared/types.js';
+import { formatContextForInjection } from '../shared/contextFormatter.js';
 import { useTailoring } from './hooks/useTailoring.js';
+import { useInjection } from './hooks/useInjection.js';
 import { StatusIndicator } from './components/StatusIndicator.js';
 import { ContextPreview } from './components/ContextPreview.js';
 import { SourceList } from './components/SourceList.js';
@@ -268,17 +270,21 @@ export function SidePanel() {
     progress,
     progressPercent,
     error,
-    injectContext,
     dismiss,
     resetToIdle,
   } = useTailoring();
 
-  // Keep editedContext in sync when a new tailoring result arrives
+  const injection = useInjection();
+
+  // Reset injection state whenever a new tailoring result arrives
+  const prevContextRef = useRef('');
   useEffect(() => {
-    if (context) {
+    if (context && context !== prevContextRef.current) {
+      prevContextRef.current = context;
       setEditedContext(context);
+      injection.reset();
     }
-  }, [context]);
+  }, [context, injection]);
 
   // Listen for platform status updates from content scripts
   useEffect(() => {
@@ -312,7 +318,11 @@ export function SidePanel() {
   }
 
   function handleInject() {
-    injectContext(editedContext || context);
+    // Format for the active platform before sending to background
+    const contextToInject = editedContext || context;
+    const platformKey = (platform ?? 'chatgpt') as 'chatgpt' | 'claude';
+    const formatted = formatContextForInjection(contextToInject, platformKey);
+    injection.approve(formatted);
   }
 
   const showPreview = state === 'preview';
@@ -320,6 +330,9 @@ export function SidePanel() {
   const showInjected = state === 'injected';
   const showIdle = state === 'idle';
   const showError = state === 'error';
+
+  // Disable the Inject button while an injection is in flight
+  const injectPending = injection.status === 'approved';
 
   return (
     <div style={s.root}>
@@ -434,8 +447,15 @@ export function SidePanel() {
       {/* ── Footer (Preview state only) ── */}
       {showPreview && (
         <footer style={s.footer}>
-          <button onClick={handleInject} style={s.btnPrimary}>
-            Inject Context
+          <button
+            onClick={handleInject}
+            style={{
+              ...s.btnPrimary,
+              ...(injectPending ? { opacity: 0.7, cursor: 'wait' } : {}),
+            }}
+            disabled={injectPending}
+          >
+            {injectPending ? 'Injecting…' : 'Inject Context'}
           </button>
           <button onClick={handleCopyToClipboard} style={s.btnSecondary} title="Copy to clipboard">
             Copy

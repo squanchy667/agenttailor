@@ -5,6 +5,7 @@
 import type { ExtensionMessage, ExtensionResponse } from '../shared/types.js';
 import { SUPPORTED_DOMAINS } from '../shared/types.js';
 import { updateSettings } from './storage.js';
+import { handleTailorRequest, handleInjectContext } from './tailorBridge.js';
 
 const SUPPORTED_HOSTNAMES = Object.values(SUPPORTED_DOMAINS);
 
@@ -97,16 +98,19 @@ chrome.runtime.onMessage.addListener(
         break;
 
       case 'TRIGGER_TAILOR':
-        // Will be handled by intelligence engine in later tasks
-        console.log('Tailor triggered for platform:', message.platform);
+        // Delegate to tailorBridge for the full assembly + injection flow
+        handleTailorRequest(message, sender.tab?.id ?? null).catch((err: unknown) => {
+          console.error('tailorBridge.handleTailorRequest failed:', err);
+        });
         sendResponse({ type: 'ACK' });
         break;
 
       case 'INJECT_CONTEXT':
-        // Forward injection request to the active content script
-        if (sender.tab?.id) {
-          void chrome.tabs.sendMessage(sender.tab.id, message);
-        }
+        // Delegate to tailorBridge — it routes to the correct content-script tab
+        // and relays the INJECTION_RESULT back to the side panel.
+        handleInjectContext(message, sender.tab?.id ?? null).catch((err: unknown) => {
+          console.error('tailorBridge.handleInjectContext failed:', err);
+        });
         sendResponse({ type: 'ACK' });
         break;
 
