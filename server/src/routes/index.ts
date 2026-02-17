@@ -5,6 +5,7 @@ import projectRoutes from './projects.js';
 import documentRoutes from './documents.js';
 import searchRoutes from './search.js';
 import tailorRoutes from './tailor.js';
+import settingsRoutes from './settings.js';
 
 /**
  * Central router that mounts all API routes
@@ -22,6 +23,7 @@ router.use('/projects', projectRoutes);
 router.use('/projects', documentRoutes);
 router.use('/search', searchRoutes);
 router.use('/tailor', tailorRoutes);
+router.use('/settings', settingsRoutes);
 
 // API version info (unprotected)
 router.get('/info', (_req, res) => {

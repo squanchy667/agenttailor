@@ -7,7 +7,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { DocumentsPage } from './pages/DocumentsPage';
 import { TailoringPage } from './pages/TailoringPage';
-import { SettingsPlaceholderPage } from './pages/SettingsPlaceholderPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -46,7 +46,7 @@ export function App() {
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="tailoring" element={<TailoringPage />} />
           <Route path="tailoring/:sessionId" element={<TailoringPage />} />
-          <Route path="settings" element={<SettingsPlaceholderPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
 
         {/* Catch-all 404 */}
