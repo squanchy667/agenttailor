@@ -4,7 +4,8 @@
     "composite": true,
     "outDir": "./dist",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["chrome", "vite/client"]
+    "types": ["chrome", "vite/client"],
+    "jsx": "react-jsx"
   },
   "include": ["src/**/*", "manifest.json"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"],
