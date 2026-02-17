@@ -13,3 +13,4 @@ export * from './schemas/search.js';
 export * from './schemas/taskAnalysis.js';
 export * from './schemas/scoredChunk.js';
 export * from './schemas/compressedContext.js';
+export * from './schemas/tokenBudget.js';
