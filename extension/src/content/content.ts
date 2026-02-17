@@ -65,8 +65,8 @@ function init(): void {
 async function loadPlatformModule(platform: Platform): Promise<void> {
   try {
     if (platform === PLATFORMS.CHATGPT) {
-      // T026 will implement: import('./chatgpt/chatgpt-handler.js')
-      console.log('AgentTailor: ChatGPT platform module placeholder (T026)');
+      const { initChatGPT } = await import('./chatgpt/index.js');
+      initChatGPT();
     } else if (platform === PLATFORMS.CLAUDE) {
       // T027 will implement: import('./claude/claude-handler.js')
       console.log('AgentTailor: Claude platform module placeholder (T027)');
