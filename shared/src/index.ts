@@ -18,3 +18,4 @@ export * from './schemas/gapAnalysis.js';
 export * from './schemas/synthesizedContext.js';
 export * from './schemas/tailor.js';
 export * from './schemas/webSearch.js';
+export * from './schemas/citation.js';

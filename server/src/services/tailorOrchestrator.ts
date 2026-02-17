@@ -28,6 +28,8 @@ import { prisma } from '../lib/prisma.js';
 import { webSearch } from './search/index.js';
 import { processWebResults, webResultsToWebResults } from './search/webResultProcessor.js';
 import type { WebResult } from './intelligence/sourceSynthesizer.js';
+import { collectCitations } from './search/citationTracker.js';
+import { formatCitationsSection } from './search/citationFormatter.js';
 
 // Local token estimator — mirrors the one in contextCompressor to avoid tiktoken dep
 function estimateTokens(text: string): number {
@@ -237,6 +239,13 @@ export async function tailorContext(
     formattedContext = synthesizedContext.blocks.map((b) => b.content).join('\n\n');
   }
 
+  // h2. Collect citations and append sources section
+  const citations = collectCitations(synthesizedContext.blocks, allScoredChunks);
+  if (citations.length > 0) {
+    const citationsSection = formatCitationsSection(citations);
+    formattedContext += '\n\n' + citationsSection;
+  }
+
   // Extract per-section stats
   const sections = extractSections(synthesizedContext, formattedContext);
 
@@ -278,6 +287,7 @@ export async function tailorContext(
           processingTimeMs,
           gapReport,
           compressionStats,
+          citations,
         },
       },
     });
