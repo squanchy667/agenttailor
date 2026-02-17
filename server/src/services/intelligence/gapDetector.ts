@@ -196,6 +196,18 @@ export function shouldTriggerWebSearch(gapReport: GapReport): boolean {
   return false;
 }
 
+export function generateSearchQueries(gaps: Gap[]): string[] {
+  const queries = new Set<string>();
+  for (const gap of gaps) {
+    if (gap.severity === 'CRITICAL' || gap.severity === 'HIGH') {
+      for (const q of gap.suggestedQueries) {
+        queries.add(q);
+      }
+    }
+  }
+  return Array.from(queries).slice(0, 5); // max 5 queries
+}
+
 export function generateUserPrompt(gapReport: GapReport): string {
   if (gapReport.gaps.length === 0) {
     return 'Your knowledge base provides good coverage for this task. No additional information is needed.';

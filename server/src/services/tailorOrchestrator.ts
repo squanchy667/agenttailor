@@ -19,12 +19,15 @@ import type {
 } from '@agenttailor/shared';
 import { analyzeTask } from './intelligence/taskAnalyzer.js';
 import { scoreChunks } from './intelligence/relevanceScorer.js';
-import { detectGaps, shouldTriggerWebSearch } from './intelligence/gapDetector.js';
+import { detectGaps, shouldTriggerWebSearch, generateSearchQueries } from './intelligence/gapDetector.js';
 import { compressContext, estimateCompressedSize } from './intelligence/contextCompressor.js';
 import { synthesize } from './intelligence/sourceSynthesizer.js';
 import { createBudget } from './intelligence/contextWindowManager.js';
 import { formatContext, extractSections } from './platformFormatter.js';
 import { prisma } from '../lib/prisma.js';
+import { webSearch } from './search/index.js';
+import { processWebResults, webResultsToWebResults } from './search/webResultProcessor.js';
+import type { WebResult } from './intelligence/sourceSynthesizer.js';
 
 // Local token estimator — mirrors the one in contextCompressor to avoid tiktoken dep
 function estimateTokens(text: string): number {
@@ -140,12 +143,34 @@ export async function tailorContext(
     };
   }
 
-  // e. Web search placeholder (Phase 3 will add real web search)
+  // e. Gap-triggered web search
+  let collectedWebResults: WebResult[] = [];
   if (shouldTriggerWebSearch(gapReport) && (request.options?.includeWebSearch ?? true)) {
-    console.log(
-      '[tailorOrchestrator] Web search would trigger for queries:',
-      taskAnalysis.suggestedSearchQueries,
-    );
+    const queries = generateSearchQueries(gapReport.gaps);
+    console.log('[tailorOrchestrator] Web search triggered for queries:', queries);
+
+    const allWebSearchResults = [];
+    for (const query of queries) {
+      try {
+        const response = await webSearch({ query, maxResults: 3, searchDepth: 'basic' });
+        allWebSearchResults.push(...response.results);
+      } catch (err) {
+        console.warn(`[tailorOrchestrator] webSearch failed for query "${query}":`, err);
+      }
+    }
+
+    if (allWebSearchResults.length > 0) {
+      // Convert to ScoredChunks and merge into the scoring pool
+      const webScoredChunks = processWebResults(allWebSearchResults);
+      allScoredChunks = mergeAndDedup([allScoredChunks, webScoredChunks]);
+
+      // Collect WebResult[] for passing to synthesize()
+      collectedWebResults = webResultsToWebResults(allWebSearchResults);
+
+      console.log(
+        `[tailorOrchestrator] Merged ${webScoredChunks.length} web chunk(s) into scoring pool`,
+      );
+    }
   }
 
   // f. Compress context
@@ -187,7 +212,11 @@ export async function tailorContext(
   // g. Synthesize
   let synthesizedContext;
   try {
-    synthesizedContext = synthesize(compressedContext.chunks, undefined, taskAnalysis);
+    synthesizedContext = synthesize(
+      compressedContext.chunks,
+      collectedWebResults.length > 0 ? collectedWebResults : undefined,
+      taskAnalysis,
+    );
   } catch (err) {
     console.warn('[tailorOrchestrator] synthesize failed — returning empty context:', err);
     synthesizedContext = {
