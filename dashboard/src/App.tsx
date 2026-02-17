@@ -5,7 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
-import { DocumentsPlaceholderPage } from './pages/DocumentsPlaceholderPage';
+import { DocumentsPage } from './pages/DocumentsPage';
 import { TailoringPlaceholderPage } from './pages/TailoringPlaceholderPage';
 import { SettingsPlaceholderPage } from './pages/SettingsPlaceholderPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -43,7 +43,7 @@ export function App() {
         >
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/:projectId" element={<ProjectDetailPage />} />
-          <Route path="documents" element={<DocumentsPlaceholderPage />} />
+          <Route path="documents" element={<DocumentsPage />} />
           <Route path="tailoring" element={<TailoringPlaceholderPage />} />
           <Route path="settings" element={<SettingsPlaceholderPage />} />
         </Route>
