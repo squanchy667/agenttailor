@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
-import { ProjectsPlaceholderPage } from './pages/ProjectsPlaceholderPage';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { DocumentsPlaceholderPage } from './pages/DocumentsPlaceholderPage';
 import { TailoringPlaceholderPage } from './pages/TailoringPlaceholderPage';
 import { SettingsPlaceholderPage } from './pages/SettingsPlaceholderPage';
@@ -40,7 +41,8 @@ export function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="projects" element={<ProjectsPlaceholderPage />} />
+          <Route path="projects" element={<ProjectsPage />} />
+          <Route path="projects/:projectId" element={<ProjectDetailPage />} />
           <Route path="documents" element={<DocumentsPlaceholderPage />} />
           <Route path="tailoring" element={<TailoringPlaceholderPage />} />
           <Route path="settings" element={<SettingsPlaceholderPage />} />
