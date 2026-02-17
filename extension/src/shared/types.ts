@@ -55,8 +55,15 @@ export type ExtensionResponse =
  */
 export interface ExtensionSettings {
   enabled: boolean;
-  platforms: Platform[];
   activeProjectId: string | null;
+  /** API base URL. Empty string means use the default proxy/production URL. */
+  apiEndpoint: string;
+  /** Automatically trigger context assembly when a task is detected. */
+  autoTailor: boolean;
+  /** Include web search results in assembled context. */
+  webSearchEnabled: boolean;
+  /** Color theme preference. */
+  theme: 'light' | 'dark' | 'system';
 }
 
 /**

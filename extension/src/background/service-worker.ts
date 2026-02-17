@@ -2,9 +2,9 @@
  * Background service worker for AgentTailor Chrome extension
  */
 
-import { PLATFORMS } from '@agenttailor/shared';
 import type { ExtensionMessage, ExtensionResponse } from '../shared/types.js';
 import { SUPPORTED_DOMAINS } from '../shared/types.js';
+import { updateSettings } from './storage.js';
 
 const SUPPORTED_HOSTNAMES = Object.values(SUPPORTED_DOMAINS);
 
@@ -12,11 +12,15 @@ const SUPPORTED_HOSTNAMES = Object.values(SUPPORTED_DOMAINS);
 chrome.runtime.onInstalled.addListener((details) => {
   console.log('AgentTailor extension installed', details.reason);
 
-  // Set default settings
-  void chrome.storage.sync.set({
+  // Set default settings (storage.ts defaults are applied on first read,
+  // but we also write them on install so other contexts see them immediately)
+  void updateSettings({
     enabled: true,
-    platforms: [PLATFORMS.CHATGPT, PLATFORMS.CLAUDE],
     activeProjectId: null,
+    apiEndpoint: '',
+    autoTailor: false,
+    webSearchEnabled: true,
+    theme: 'system',
   });
 
   // Configure side panel to open on action click (not as default action)
