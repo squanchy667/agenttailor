@@ -29,6 +29,9 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { ApiClient } from './lib/apiClient.js';
 import { TAILOR_CONTEXT_TOOL, handleTailorContext } from './tools/tailorContext.js';
+import { SEARCH_DOCS_TOOL, handleSearchDocs } from './tools/searchDocs.js';
+import { UPLOAD_DOCUMENT_TOOL, handleUploadDocument } from './tools/uploadDocument.js';
+import { LIST_PROJECTS_TOOL, handleListProjects } from './tools/listProjects.js';
 
 // ── Initialize ──────────────────────────────────────────────────────────────
 
@@ -47,7 +50,7 @@ const server = new Server(
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: [TAILOR_CONTEXT_TOOL],
+    tools: [TAILOR_CONTEXT_TOOL, SEARCH_DOCS_TOOL, UPLOAD_DOCUMENT_TOOL, LIST_PROJECTS_TOOL],
   };
 });
 
@@ -57,6 +60,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (name) {
     case 'tailor_context':
       return handleTailorContext(apiClient, args ?? {});
+    case 'search_docs':
+      return handleSearchDocs(apiClient, args ?? {});
+    case 'upload_document':
+      return handleUploadDocument(apiClient, args ?? {});
+    case 'list_projects':
+      return handleListProjects(apiClient);
     default:
       return {
         content: [{ type: 'text' as const, text: `Unknown tool: ${name}` }],
@@ -71,7 +80,8 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('AgentTailor MCP server running on stdio');
-  console.error(`  Tools: ${[TAILOR_CONTEXT_TOOL.name].join(', ')}`);
+  const toolNames = [TAILOR_CONTEXT_TOOL, SEARCH_DOCS_TOOL, UPLOAD_DOCUMENT_TOOL, LIST_PROJECTS_TOOL].map((t) => t.name);
+  console.error(`  Tools: ${toolNames.join(', ')}`);
   console.error(`  API URL: ${process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:3000'}`);
 }
 
