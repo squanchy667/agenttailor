@@ -20,3 +20,4 @@ export * from './schemas/tailor.js';
 export * from './schemas/webSearch.js';
 export * from './schemas/citation.js';
 export * from './schemas/settings.js';
+export * from './schemas/mcp.js';

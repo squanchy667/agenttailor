@@ -2,7 +2,23 @@
 
 /**
  * AgentTailor MCP Server
- * Provides context tailoring tools and resources for Claude Desktop
+ *
+ * Provides context tailoring tools and document resources for Claude Desktop
+ * and Claude Code via the Model Context Protocol (stdio transport).
+ *
+ * Claude Desktop configuration (add to claude_desktop_config.json):
+ * {
+ *   "mcpServers": {
+ *     "agent-tailor": {
+ *       "command": "npx",
+ *       "args": ["agent-tailor-mcp"],
+ *       "env": {
+ *         "AGENTTAILOR_API_URL": "http://localhost:3000",
+ *         "AGENTTAILOR_API_KEY": "your-api-key"
+ *       }
+ *     }
+ *   }
+ * }
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -11,71 +27,52 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { ApiClient } from './lib/apiClient.js';
+import { TAILOR_CONTEXT_TOOL, handleTailorContext } from './tools/tailorContext.js';
 
-// Create MCP server
+// ── Initialize ──────────────────────────────────────────────────────────────
+
+const apiClient = new ApiClient();
+
 const server = new Server(
-  {
-    name: 'agenttailor',
-    version: '1.0.0',
-  },
+  { name: 'agenttailor', version: '1.0.0' },
   {
     capabilities: {
       tools: {},
     },
-  }
+  },
 );
 
-// List available tools
+// ── Tools ───────────────────────────────────────────────────────────────────
+
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: [
-      {
-        name: 'get_context',
-        description: 'Get tailored context for current conversation',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            query: {
-              type: 'string',
-              description: 'Query to find relevant context',
-            },
-            maxTokens: {
-              type: 'number',
-              description: 'Maximum tokens to return',
-              default: 4000,
-            },
-          },
-          required: ['query'],
-        },
-      },
-    ],
+    tools: [TAILOR_CONTEXT_TOOL],
   };
 });
 
-// Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
-  if (name === 'get_context') {
-    // TODO: Implement context retrieval logic
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Context retrieval for query: "${args?.query}"\n\nThis is a stub implementation. Will be connected to AgentTailor backend.`,
-        },
-      ],
-    };
+  switch (name) {
+    case 'tailor_context':
+      return handleTailorContext(apiClient, args ?? {});
+    default:
+      return {
+        content: [{ type: 'text' as const, text: `Unknown tool: ${name}` }],
+        isError: true,
+      };
   }
-
-  throw new Error(`Unknown tool: ${name}`);
 });
 
-// Start server
+// ── Start ───────────────────────────────────────────────────────────────────
+
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('AgentTailor MCP server running on stdio');
+  console.error(`  Tools: ${[TAILOR_CONTEXT_TOOL.name].join(', ')}`);
+  console.error(`  API URL: ${process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:3000'}`);
 }
 
 main().catch((error) => {
