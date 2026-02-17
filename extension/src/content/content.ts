@@ -68,8 +68,8 @@ async function loadPlatformModule(platform: Platform): Promise<void> {
       const { initChatGPT } = await import('./chatgpt/index.js');
       initChatGPT();
     } else if (platform === PLATFORMS.CLAUDE) {
-      // T027 will implement: import('./claude/claude-handler.js')
-      console.log('AgentTailor: Claude platform module placeholder (T027)');
+      const { initClaude } = await import('./claude/index.js');
+      initClaude();
     }
   } catch (err: unknown) {
     console.error('AgentTailor: Failed to load platform module:', err);
