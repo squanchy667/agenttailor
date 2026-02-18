@@ -1,0 +1,15 @@
+{
+  "name": "AgentTailor",
+  "description": "Access your project docs and web search from ChatGPT. AgentTailor assembles optimal context from your uploaded documents to give you accurate, sourced answers about your codebase, specs, and knowledge base.",
+  "conversation_starters": [
+    "Help me understand my project's architecture",
+    "Search my docs for authentication implementation details",
+    "Assemble context for building a new API endpoint",
+    "What projects do I have in AgentTailor?"
+  ],
+  "capabilities": {
+    "web_browsing": false,
+    "code_interpreter": false,
+    "dall_e": false
+  }
+}
