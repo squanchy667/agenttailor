@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: agenttailor_dev
       POSTGRES_DB: agenttailor_dev
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -39,7 +39,7 @@ services:
     container_name: agenttailor-chromadb
     restart: unless-stopped
     ports:
-      - '8000:8000'
+      - '8100:8000'
     volumes:
       - chroma_data:/chroma/chroma
     environment:
