@@ -10,6 +10,7 @@ import type { Request, Response } from 'express';
 import { TailorRequestSchema, TailorPreviewRequestSchema } from '@agenttailor/shared';
 import { authenticatedUser } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validateRequest.js';
+import { planRateLimiter } from '../middleware/planEnforcer.js';
 import { tailorContext, previewTailor } from '../services/tailorOrchestrator.js';
 import { prisma } from '../lib/prisma.js';
 
@@ -22,6 +23,7 @@ const router = Router();
 router.post(
   '/',
   authenticatedUser,
+  planRateLimiter,
   validateRequest(TailorRequestSchema, 'body'),
   async (req: Request, res: Response) => {
     try {

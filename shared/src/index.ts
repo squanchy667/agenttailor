@@ -23,3 +23,4 @@ export * from './schemas/settings.js';
 export * from './schemas/mcp.js';
 export * from './schemas/gptActions.js';
 export * from './schemas/qualityScore.js';
+export * from './schemas/plan.js';

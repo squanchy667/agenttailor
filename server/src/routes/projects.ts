@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { CreateProjectInput, UpdateProjectInput, ProjectListQuery } from '@agenttailor/shared';
 import { authenticatedUser } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validateRequest.js';
+import { enforceMaxProjects } from '../middleware/planEnforcer.js';
 import {
   createProject,
   getProject,
@@ -25,6 +26,7 @@ const router = Router();
 router.post(
   '/',
   authenticatedUser,
+  enforceMaxProjects,
   validateRequest(CreateProjectInput, 'body'),
   async (req: Request, res: Response) => {
     try {
