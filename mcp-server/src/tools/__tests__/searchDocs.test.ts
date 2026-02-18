@@ -45,9 +45,9 @@ describe('handleSearchDocs', () => {
       expect(result.isError).toBe(true);
     });
 
-    it('rejects invalid projectId', async () => {
+    it('rejects empty projectId', async () => {
       const client = mockApiClient();
-      const result = await handleSearchDocs(client, { query: 'auth', projectId: 'bad' });
+      const result = await handleSearchDocs(client, { query: 'auth', projectId: '' });
       expect(result.isError).toBe(true);
       expect(result.content[0]!.text).toContain('projectId');
     });

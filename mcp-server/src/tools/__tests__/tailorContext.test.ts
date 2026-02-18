@@ -57,9 +57,9 @@ describe('handleTailorContext', () => {
       expect(result.isError).toBe(true);
     });
 
-    it('rejects invalid projectId (not UUID)', async () => {
+    it('rejects empty projectId', async () => {
       const client = mockApiClient();
-      const result = await handleTailorContext(client, { task: 'test', projectId: 'not-uuid' });
+      const result = await handleTailorContext(client, { task: 'test', projectId: '' });
       expect(result.isError).toBe(true);
       expect(result.content[0]!.text).toContain('projectId');
     });

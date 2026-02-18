@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 export const GptTailorRequestSchema = z.object({
   task: z.string().min(1).max(2000),
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1),
   maxTokens: z.number().int().positive().optional().default(3000),
 });
 export type GptTailorRequest = z.infer<typeof GptTailorRequestSchema>;
@@ -32,7 +32,7 @@ export type GptTailorResponse = z.infer<typeof GptTailorResponseSchema>;
 
 export const GptSearchRequestSchema = z.object({
   query: z.string().min(1).max(500),
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1),
   topK: z.number().int().positive().optional().default(3),
 });
 export type GptSearchRequest = z.infer<typeof GptSearchRequestSchema>;

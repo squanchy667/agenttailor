@@ -60,10 +60,10 @@ describe('handleUploadDocument', () => {
       expect(result.isError).toBe(true);
     });
 
-    it('rejects invalid projectId', async () => {
+    it('rejects empty projectId', async () => {
       const client = mockApiClient();
       const result = await handleUploadDocument(client, {
-        projectId: 'not-a-uuid',
+        projectId: '',
         fileName: 'test.md',
         content: 'hello',
       });

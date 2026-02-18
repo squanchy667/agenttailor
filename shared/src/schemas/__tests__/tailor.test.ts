@@ -33,8 +33,8 @@ describe('TailorRequestSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects invalid projectId', () => {
-    const result = TailorRequestSchema.safeParse({ ...validRequest, projectId: 'not-a-uuid' });
+  it('rejects empty projectId', () => {
+    const result = TailorRequestSchema.safeParse({ ...validRequest, projectId: '' });
     expect(result.success).toBe(false);
   });
 

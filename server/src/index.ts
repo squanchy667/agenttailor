@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import apiRouter from './routes/index.js';
 import gptRouter from './routes/gptActions.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { startDocumentWorker } from './workers/documentWorker.js';
 
 // Load environment variables
 config();
@@ -42,6 +43,9 @@ app.use((_req, res) => {
 
 // Global error handler
 app.use(errorHandler);
+
+// Start document processing worker
+startDocumentWorker();
 
 // Start server
 app.listen(PORT, () => {

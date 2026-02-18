@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 export const TailorContextInputSchema = z.object({
   task: z.string().min(1).describe('The task or question to assemble context for'),
-  projectId: z.string().uuid().describe('The project ID to pull documents from'),
+  projectId: z.string().min(1).describe('The project ID to pull documents from'),
   maxTokens: z.number().int().positive().optional().default(4000).describe('Maximum tokens for the assembled context'),
   includeWebSearch: z.boolean().optional().default(true).describe('Whether to include web search results for gap filling'),
 });
@@ -31,7 +31,7 @@ export type TailorContextOutput = z.infer<typeof TailorContextOutputSchema>;
 
 export const SearchDocsInputSchema = z.object({
   query: z.string().min(1).describe('Semantic search query'),
-  projectId: z.string().uuid().describe('The project ID to search within'),
+  projectId: z.string().min(1).describe('The project ID to search within'),
   topK: z.number().int().positive().optional().default(5).describe('Number of results to return'),
   minScore: z.number().min(0).max(1).optional().default(0.5).describe('Minimum relevance score threshold'),
 });
@@ -52,7 +52,7 @@ export type SearchDocsOutput = z.infer<typeof SearchDocsOutputSchema>;
 // ── upload_document ─────────────────────────────────────────────────────────
 
 export const UploadDocumentInputSchema = z.object({
-  projectId: z.string().uuid().describe('The project to upload the document to'),
+  projectId: z.string().min(1).describe('The project to upload the document to'),
   fileName: z.string().min(1).describe('Name for the uploaded file'),
   content: z.string().min(1).describe('File content as plain text or base64'),
   mimeType: z.string().optional().default('text/plain').describe('MIME type of the file content'),

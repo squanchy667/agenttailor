@@ -12,7 +12,7 @@ import { QualityScoreSchema } from './qualityScore.js';
 
 export const TailorRequestSchema = z.object({
   taskInput: z.string().min(1).max(5000),
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1),
   targetPlatform: z.enum(['chatgpt', 'claude']),
   options: z
     .object({
@@ -27,7 +27,7 @@ export type TailorRequest = z.infer<typeof TailorRequestSchema>;
 
 export const TailorPreviewRequestSchema = z.object({
   taskInput: z.string().min(1).max(5000),
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1),
   targetPlatform: z.enum(['chatgpt', 'claude']),
 });
 export type TailorPreviewRequest = z.infer<typeof TailorPreviewRequestSchema>;
