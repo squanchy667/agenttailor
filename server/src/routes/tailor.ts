@@ -8,7 +8,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { TailorRequestSchema, TailorPreviewRequestSchema } from '@agenttailor/shared';
-import { authenticatedUser } from '../middleware/auth.js';
+import { authenticatedUser } from '../middleware/authMode.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { planRateLimiter } from '../middleware/planEnforcer.js';
 import { tailorContext, previewTailor } from '../services/tailorOrchestrator.js';

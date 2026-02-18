@@ -2,6 +2,7 @@ import type { EmbeddingConfig } from '@agenttailor/shared';
 import { EmbeddingConfigSchema } from '@agenttailor/shared';
 import type OpenAI from 'openai';
 import { getOpenAIClient } from '../../lib/openai.js';
+import { LocalEmbedder } from './localEmbedder.js';
 
 export interface Embedder {
   embedText(text: string): Promise<number[]>;
@@ -75,5 +76,11 @@ class OpenAIEmbedder implements Embedder {
 }
 
 export function createEmbedder(config?: Partial<EmbeddingConfig>): Embedder {
+  const provider = process.env.EMBEDDING_PROVIDER ?? 'local';
+
+  if (provider === 'local') {
+    return new LocalEmbedder();
+  }
+
   return new OpenAIEmbedder(config);
 }

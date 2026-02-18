@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { CreateProjectInput, UpdateProjectInput, ProjectListQuery } from '@agenttailor/shared';
-import { authenticatedUser } from '../middleware/auth.js';
+import { authenticatedUser } from '../middleware/authMode.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { enforceMaxProjects } from '../middleware/planEnforcer.js';
 import {

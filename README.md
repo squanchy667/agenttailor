@@ -29,7 +29,49 @@ Your Task → AgentTailor Intelligence Engine → Tailored Context → AI Agent
                     └── Score quality (coverage, diversity, relevance)
 ```
 
-## Quick Start
+## Quick Start (Local Mode)
+
+Run AgentTailor locally with **zero API keys** — no Clerk, no OpenAI, no external accounts:
+
+```bash
+git clone https://github.com/yourusername/agenttailor.git
+cd agenttailor
+npm run setup   # docker compose + install + db + seed
+npm run dev     # server :4000, dashboard :5173
+```
+
+That's it. Local mode uses built-in embeddings (`@xenova/transformers`), no authentication, and a pre-seeded local user with a "Getting Started" project.
+
+### MCP Server (Claude Desktop / Claude Code)
+
+Add to your MCP config:
+
+```json
+{
+  "mcpServers": {
+    "agent-tailor": {
+      "command": "npx",
+      "args": ["agent-tailor-mcp"],
+      "env": {
+        "AGENTTAILOR_API_URL": "http://localhost:4000"
+      }
+    }
+  }
+}
+```
+
+### SaaS Mode (Optional)
+
+To use Clerk auth and OpenAI embeddings, set these in `.env`:
+
+```bash
+AUTH_MODE=clerk
+EMBEDDING_PROVIDER=openai
+CLERK_SECRET_KEY=sk_...
+OPENAI_API_KEY=sk-...
+```
+
+### Manual Setup
 
 ```bash
 # Clone and install
@@ -41,11 +83,12 @@ npm install
 docker compose up -d
 
 # Set up environment
-cp .env.example .env
-# Edit .env with your API keys
+cp .env.local.example .env
+# Or for SaaS mode: cp .env.example .env and fill in API keys
 
-# Run database migrations
-npx prisma migrate dev --schema=server/prisma/schema.prisma
+# Push database schema and seed
+npx prisma db push --schema=server/prisma/schema.prisma
+npx tsx server/prisma/seed.ts
 
 # Start development
 npm run dev

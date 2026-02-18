@@ -13,8 +13,7 @@
  *       "command": "npx",
  *       "args": ["agent-tailor-mcp"],
  *       "env": {
- *         "AGENTTAILOR_API_URL": "http://localhost:3000",
- *         "AGENTTAILOR_API_KEY": "your-api-key"
+ *         "AGENTTAILOR_API_URL": "http://localhost:4000"
  *       }
  *     }
  *   }
@@ -164,7 +163,7 @@ async function main() {
   console.error('AgentTailor MCP server running on stdio');
   const toolNames = [TAILOR_CONTEXT_TOOL, SEARCH_DOCS_TOOL, UPLOAD_DOCUMENT_TOOL, LIST_PROJECTS_TOOL].map((t) => t.name);
   console.error(`  Tools: ${toolNames.join(', ')}`);
-  console.error(`  API URL: ${process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:3000'}`);
+  console.error(`  API URL: ${process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:4000'}`);
 }
 
 main().catch((error) => {

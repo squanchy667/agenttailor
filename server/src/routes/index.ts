@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { clerkAuth } from '../middleware/auth.js';
+import { clerkAuth } from '../middleware/authMode.js';
 import authRoutes from './auth.js';
 import projectRoutes from './projects.js';
 import documentRoutes from './documents.js';

@@ -28,11 +28,11 @@ export class ApiClient {
   private apiKey: string;
 
   constructor(baseUrl?: string, apiKey?: string) {
-    this.baseUrl = (baseUrl ?? process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:3000').replace(/\/$/, '');
+    this.baseUrl = (baseUrl ?? process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:4000').replace(/\/$/, '');
     this.apiKey = apiKey ?? process.env['AGENTTAILOR_API_KEY'] ?? '';
 
     if (!this.apiKey) {
-      console.error('[ApiClient] Warning: AGENTTAILOR_API_KEY not set. API calls will fail authentication.');
+      console.error('[ApiClient] Warning: AGENTTAILOR_API_KEY not set. In local mode this is fine; in SaaS mode, API calls will fail authentication.');
     }
   }
 

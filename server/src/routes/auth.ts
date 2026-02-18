@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { authenticatedUser } from '../middleware/auth.js';
+import { authenticatedUser, AUTH_MODE } from '../middleware/authMode.js';
 import { findUserByClerkId, createUser } from '../lib/db.js';
 import { getAuth } from '@clerk/express';
 
@@ -57,6 +57,24 @@ router.get('/me', authenticatedUser, async (req: Request, res: Response) => {
  * Useful for manual sync or after Clerk user updates
  */
 router.post('/sync', authenticatedUser, async (req: Request, res: Response) => {
+  // In local mode, sync is a no-op — return the already-attached user
+  if (AUTH_MODE === 'local') {
+    const user = req.user;
+    return res.json({
+      data: {
+        id: user!.id,
+        email: user!.email,
+        name: user!.name,
+        clerkId: user!.clerkId,
+        plan: user!.plan,
+        settings: user!.settings,
+        createdAt: user!.createdAt,
+        updatedAt: user!.updatedAt,
+      },
+      message: 'Local mode — no sync needed',
+    });
+  }
+
   try {
     const auth = getAuth(req);
 

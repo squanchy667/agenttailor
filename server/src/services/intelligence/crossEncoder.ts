@@ -80,8 +80,19 @@ export class LLMCrossEncoder implements CrossEncoder {
   }
 }
 
+export class NoopCrossEncoder implements CrossEncoder {
+  async rerank(_query: string, passages: string[]): Promise<{ index: number; score: number }[]> {
+    return passages.map((_, index) => ({ index, score: 0.5 }));
+  }
+}
+
 export function createCrossEncoder(): CrossEncoder {
-  const provider = process.env.CROSS_ENCODER_PROVIDER ?? 'llm';
+  const embeddingProvider = process.env.EMBEDDING_PROVIDER ?? 'local';
+  const provider = process.env.CROSS_ENCODER_PROVIDER ?? (embeddingProvider === 'local' ? 'noop' : 'llm');
+
+  if (provider === 'noop') {
+    return new NoopCrossEncoder();
+  }
 
   if (provider === 'cohere') {
     return new APICrossEncoder();

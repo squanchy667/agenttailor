@@ -7,7 +7,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { SearchRequestSchema, SuggestRequestSchema, WebSearchQuerySchema } from '@agenttailor/shared';
-import { authenticatedUser } from '../middleware/auth.js';
+import { authenticatedUser } from '../middleware/authMode.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { searchDocuments } from '../services/searchService.js';
 import { createEmbedder } from '../services/embedding/embedder.js';

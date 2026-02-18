@@ -15,7 +15,7 @@ export const UserProfileSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   name: z.string().nullable(),
-  clerkId: z.string(),
+  clerkId: z.string().nullable(),
   plan: PlanSchema,
   settings: z.unknown().nullable(),
   createdAt: z.date().or(z.string()),
@@ -25,7 +25,7 @@ export const UserProfileSchema = z.object({
 // User creation input
 export const CreateUserSchema = z.object({
   email: z.string().email(),
-  clerkId: z.string(),
+  clerkId: z.string().optional(),
   name: z.string().optional(),
   plan: PlanSchema.optional(),
 });

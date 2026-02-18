@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
-import { authenticatedUser } from '../middleware/auth.js';
+import { authenticatedUser } from '../middleware/authMode.js';
 import { enforceDocumentLimits } from '../middleware/planEnforcer.js';
 import { prisma } from '../lib/prisma.js';
 import { documentProcessingQueue } from '../lib/queue.js';

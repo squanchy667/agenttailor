@@ -24,7 +24,7 @@ describe('ApiClient', () => {
 
   beforeEach(() => {
     mockFetch.mockReset();
-    client = new ApiClient('http://localhost:3000', 'test-api-key');
+    client = new ApiClient('http://localhost:4000', 'test-api-key');
   });
 
   afterEach(() => {
@@ -45,18 +45,18 @@ describe('ApiClient', () => {
     });
 
     it('strips trailing slash from baseUrl', () => {
-      const c = new ApiClient('http://localhost:3000/', 'key');
+      const c = new ApiClient('http://localhost:4000/', 'key');
       mockFetch.mockResolvedValueOnce(jsonResponse([]));
       c.listProjects();
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/projects',
+        'http://localhost:4000/api/projects',
         expect.anything(),
       );
     });
 
     it('warns when API key is missing', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      new ApiClient('http://localhost:3000', '');
+      new ApiClient('http://localhost:4000', '');
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('AGENTTAILOR_API_KEY not set'),
       );
@@ -128,7 +128,7 @@ describe('ApiClient', () => {
         includeWebSearch: true,
       });
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/tailor',
+        'http://localhost:4000/api/tailor',
         expect.objectContaining({ method: 'POST' }),
       );
     });
@@ -146,7 +146,7 @@ describe('ApiClient', () => {
       });
 
       const callArgs = mockFetch.mock.calls[0]!;
-      expect(callArgs[0]).toBe('http://localhost:3000/api/search/docs');
+      expect(callArgs[0]).toBe('http://localhost:4000/api/search/docs');
       const body = JSON.parse(callArgs[1].body);
       expect(body).toEqual({
         query: 'authentication',
@@ -176,7 +176,7 @@ describe('ApiClient', () => {
       });
 
       const callArgs = mockFetch.mock.calls[0]!;
-      expect(callArgs[0]).toBe(`http://localhost:3000/api/projects/${projectId}/documents`);
+      expect(callArgs[0]).toBe(`http://localhost:4000/api/projects/${projectId}/documents`);
       const body = JSON.parse(callArgs[1].body);
       expect(body).toEqual({
         fileName: 'readme.md',
@@ -191,7 +191,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce(jsonResponse([]));
       await client.listProjects();
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/projects',
+        'http://localhost:4000/api/projects',
         expect.objectContaining({ method: 'GET' }),
       );
     });
@@ -212,7 +212,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce(jsonResponse([]));
       await client.listDocuments('proj-1');
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/projects/proj-1/documents',
+        'http://localhost:4000/api/projects/proj-1/documents',
         expect.objectContaining({ method: 'GET' }),
       );
     });
@@ -223,7 +223,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce(jsonResponse({ content: 'hello', fileName: 'test.md' }));
       const result = await client.getDocumentContent('proj-1', 'doc-1');
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/projects/proj-1/documents/doc-1',
+        'http://localhost:4000/api/projects/proj-1/documents/doc-1',
         expect.objectContaining({ method: 'GET' }),
       );
       expect(result).toEqual({ content: 'hello', fileName: 'test.md' });
@@ -235,7 +235,7 @@ describe('ApiClient', () => {
       mockFetch.mockResolvedValueOnce(jsonResponse({ sessions: [] }));
       await client.listSessions('proj-1', 10);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/tailor/sessions?projectId=proj-1&limit=10',
+        'http://localhost:4000/api/tailor/sessions?projectId=proj-1&limit=10',
         expect.objectContaining({ method: 'GET' }),
       );
     });

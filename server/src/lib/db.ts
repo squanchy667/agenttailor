@@ -22,7 +22,7 @@ export async function findUserByEmail(email: string) {
 
 export async function createUser(data: {
   email: string;
-  clerkId: string;
+  clerkId?: string;
   name?: string;
   plan?: Plan;
 }) {

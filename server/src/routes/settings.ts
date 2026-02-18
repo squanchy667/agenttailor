@@ -5,7 +5,7 @@ import {
   ApiKeyInputSchema,
   DEFAULT_SETTINGS,
 } from '@agenttailor/shared';
-import { authenticatedUser } from '../middleware/auth.js';
+import { authenticatedUser } from '../middleware/authMode.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 
 /**

@@ -1,9 +1,12 @@
 import { z } from 'zod';
 
+const isLocalEmbedding = (typeof process !== 'undefined' && process.env?.EMBEDDING_PROVIDER === 'local') ||
+  (typeof process !== 'undefined' && !process.env?.EMBEDDING_PROVIDER);
+
 export const EmbeddingConfigSchema = z.object({
-  model: z.string().default('text-embedding-ada-002'),
-  dimensions: z.number().default(1536),
-  batchSize: z.number().default(100),
+  model: z.string().default(isLocalEmbedding ? 'Xenova/all-MiniLM-L6-v2' : 'text-embedding-ada-002'),
+  dimensions: z.number().default(isLocalEmbedding ? 384 : 1536),
+  batchSize: z.number().default(isLocalEmbedding ? 32 : 100),
 });
 export type EmbeddingConfig = z.infer<typeof EmbeddingConfigSchema>;
 
