@@ -8,6 +8,7 @@ import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { DocumentsPage } from './pages/DocumentsPage';
 import { TailoringPage } from './pages/TailoringPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,7 @@ export function App() {
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="tailoring" element={<TailoringPage />} />
           <Route path="tailoring/:sessionId" element={<TailoringPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 
