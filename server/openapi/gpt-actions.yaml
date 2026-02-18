@@ -1,0 +1,259 @@
+openapi: 3.1.0
+info:
+  title: AgentTailor
+  description: |
+    AgentTailor assembles optimal context from your project documents and web search
+    for AI conversations. Use these actions to get tailored context, search your docs,
+    and manage your projects — all from within ChatGPT.
+  version: 1.0.0
+
+servers:
+  - url: https://api.agenttailor.com
+    description: Production server
+  - url: http://localhost:4000
+    description: Local development server
+
+security:
+  - apiKey: []
+
+paths:
+  /gpt/tailor:
+    post:
+      operationId: tailorContext
+      summary: Assemble tailored context for a task
+      description: |
+        Runs the full tailoring pipeline: analyzes the task, retrieves relevant document
+        chunks, fills gaps with web search, compresses and formats the context.
+        Returns a ready-to-use context block with source attribution and quality score.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TailorRequest'
+            example:
+              task: "Explain the authentication flow in this project"
+              projectId: "clxyz123abc"
+              maxTokens: 3000
+      responses:
+        '200':
+          description: Tailored context assembled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TailorResponse'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gpt/search:
+    post:
+      operationId: searchDocs
+      summary: Search project documents
+      description: |
+        Semantic search within a project's document knowledge base.
+        Returns the most relevant chunks with content snippets (truncated to 500 chars)
+        and relevance scores. Use this for quick lookups and fact-checking.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+            example:
+              query: "database connection pooling"
+              projectId: "clxyz123abc"
+              topK: 3
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gpt/projects:
+    get:
+      operationId: listProjects
+      summary: List user's projects
+      description: |
+        Returns all projects belonging to the authenticated user with their names
+        and document counts. Use a project ID from this list as the projectId
+        parameter for /gpt/tailor or /gpt/search.
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gpt/health:
+    get:
+      operationId: healthCheck
+      summary: Health check
+      description: Verify the server is running. No authentication required.
+      security: []
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: API key for authentication. Get yours from the AgentTailor dashboard.
+
+  schemas:
+    TailorRequest:
+      type: object
+      required: [task, projectId]
+      properties:
+        task:
+          type: string
+          maxLength: 2000
+          description: The task or question to assemble context for
+        projectId:
+          type: string
+          format: uuid
+          description: The project ID to pull documents from
+        maxTokens:
+          type: integer
+          default: 3000
+          description: Maximum tokens for the assembled context
+
+    TailorResponse:
+      type: object
+      properties:
+        context:
+          type: string
+          description: The assembled context block, ready to use
+        sourceCount:
+          type: integer
+          description: Number of document chunks included
+        topSources:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              type:
+                type: string
+                enum: [document, web, chunk]
+        qualityScore:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Context quality score (1.0 = excellent)
+        _help:
+          type: string
+          description: Usage guidance for the GPT
+
+    SearchRequest:
+      type: object
+      required: [query, projectId]
+      properties:
+        query:
+          type: string
+          maxLength: 500
+          description: Semantic search query
+        projectId:
+          type: string
+          format: uuid
+          description: The project to search within
+        topK:
+          type: integer
+          default: 3
+          description: Number of results to return
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Relevant content snippet (max 500 chars)
+              source:
+                type: string
+                description: Source document filename
+              relevance:
+                type: number
+                minimum: 0
+                maximum: 1
+        _help:
+          type: string
+
+    ProjectListResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              documentCount:
+                type: integer
+        _help:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        version:
+          type: string
+        tools:
+          type: array
+          items:
+            type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error message

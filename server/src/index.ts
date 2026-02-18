@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import apiRouter from './routes/index.js';
+import gptRouter from './routes/gptActions.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
@@ -23,8 +24,11 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Mount API routes
+// Mount API routes (Clerk auth)
 app.use('/api', apiRouter);
+
+// Mount GPT Action routes (API key auth, separate from Clerk)
+app.use('/gpt', gptRouter);
 
 // 404 handler
 app.use((_req, res) => {
