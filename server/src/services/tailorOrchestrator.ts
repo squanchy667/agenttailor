@@ -30,6 +30,7 @@ import { processWebResults, webResultsToWebResults } from './search/webResultPro
 import type { WebResult } from './intelligence/sourceSynthesizer.js';
 import { collectCitations } from './search/citationTracker.js';
 import { formatCitationsSection } from './search/citationFormatter.js';
+import { scoreContext } from './qualityScorer.js';
 
 // Local token estimator — mirrors the one in contextCompressor to avoid tiktoken dep
 function estimateTokens(text: string): number {
@@ -249,23 +250,25 @@ export async function tailorContext(
   // Extract per-section stats
   const sections = extractSections(synthesizedContext, formattedContext);
 
-  // i. Calculate quality score
-  const coverage = gapReport.overallCoverage;
-  const avgRelevance =
-    allScoredChunks.length > 0
-      ? allScoredChunks.reduce((s, c) => s + c.finalScore, 0) / allScoredChunks.length
-      : 0;
-  const compressionRatio =
-    compressionStats.originalTokens > 0
-      ? compressionStats.compressedTokens / compressionStats.originalTokens
-      : 0;
-  const sourceIds = new Set(allScoredChunks.map((c) => c.documentId));
-  const sourceDiversity = Math.min(sourceIds.size / Math.max(allScoredChunks.length, 1), 1);
+  // i. Calculate quality score using dedicated scorer (skip if includeScore=false)
+  const includeScore = request.options?.includeScore ?? true;
+  let qualityScore = 0;
+  let qualityDetails: ReturnType<typeof scoreContext> | undefined;
 
-  const qualityScore = Math.min(
-    1,
-    coverage * 0.3 + avgRelevance * 0.4 + (1 - compressionRatio) * 0.15 + sourceDiversity * 0.15,
-  );
+  if (includeScore) {
+    const qualityResult = scoreContext(
+      request.taskInput,
+      compressedContext.chunks.map((c) => c.content),
+      allScoredChunks.map((c) => ({
+        documentId: c.documentId,
+        finalScore: c.finalScore,
+      })),
+      compressionStats.originalTokens,
+      compressionStats.compressedTokens,
+    );
+    qualityScore = qualityResult.overall / 100;
+    qualityDetails = qualityResult;
+  }
 
   const processingTimeMs = Date.now() - pipelineStart;
 
@@ -288,6 +291,7 @@ export async function tailorContext(
           gapReport,
           compressionStats,
           citations,
+          qualityDetails,
         },
       },
     });
@@ -312,6 +316,7 @@ export async function tailorContext(
       compressionStats,
       processingTimeMs,
       qualityScore,
+      qualityDetails,
     },
   };
 }

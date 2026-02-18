@@ -55,7 +55,7 @@ router.post(
         taskInput: task,
         projectId,
         targetPlatform: 'chatgpt',
-        options: { maxTokens, includeWebSearch: true },
+        options: { maxTokens, includeWebSearch: true, includeScore: true },
       });
 
       return res.json({

@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { GapReportSchema } from './gapAnalysis.js';
 import { CompressionStatsSchema } from './compressedContext.js';
+import { QualityScoreSchema } from './qualityScore.js';
 
 // ── Request schemas ──────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ export const TailorRequestSchema = z.object({
     .object({
       maxTokens: z.number().int().positive().optional(),
       includeWebSearch: z.boolean().default(true),
+      includeScore: z.boolean().default(true),
       customInstructions: z.string().optional(),
     })
     .optional(),
@@ -49,6 +51,7 @@ export const TailorMetadataSchema = z.object({
   compressionStats: CompressionStatsSchema,
   processingTimeMs: z.number().int().nonnegative(),
   qualityScore: z.number().min(0).max(1),
+  qualityDetails: QualityScoreSchema.optional(),
 });
 export type TailorMetadata = z.infer<typeof TailorMetadataSchema>;
 
