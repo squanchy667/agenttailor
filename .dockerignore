@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.github
+.claude
+.env
+.env.*
+*.md
+**/*.test.ts
+**/*.test.tsx
+**/__tests__
+coverage
+.vscode
