@@ -1,5 +1,5 @@
-import { useAuth } from '@clerk/clerk-react';
 import { useCallback } from 'react';
+import { useAuthToken } from './authProvider';
 
 // ---- Typed error ------------------------------------------------------------
 
@@ -88,7 +88,7 @@ export interface ApiClient {
 }
 
 export function useApiClient(): ApiClient {
-  const { getToken } = useAuth();
+  const getToken = useAuthToken();
 
   const withToken = useCallback(
     async <T>(method: RequestMethod, path: string, body?: unknown): Promise<T> => {

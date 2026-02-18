@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@clerk/clerk-react';
 import { useApiClient } from '../lib/api';
+import { useAuthToken } from '../lib/authProvider';
 import { useToast } from './useToast';
 
 // ---- Types ------------------------------------------------------------------
@@ -68,7 +68,7 @@ export interface UploadDocumentInput {
 }
 
 export function useUploadDocument(projectId: string) {
-  const { getToken } = useAuth();
+  const getToken = useAuthToken();
   const queryClient = useQueryClient();
 
   return useMutation({

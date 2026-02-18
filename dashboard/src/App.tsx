@@ -1,5 +1,5 @@
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute, AUTH_MODE } from './lib/authProvider';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
@@ -11,24 +11,15 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <SignedIn>{children}</SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-    </>
-  );
-}
+const isLocal = AUTH_MODE !== 'clerk';
 
 export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        {/* Public routes (Clerk mode only) */}
+        {!isLocal && <Route path="/login" element={<LoginPage />} />}
+        {!isLocal && <Route path="/signup" element={<SignupPage />} />}
 
         {/* Root redirect */}
         <Route path="/" element={<Navigate to="/projects" replace />} />

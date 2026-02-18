@@ -1,4 +1,4 @@
-import { useUser } from '@clerk/clerk-react';
+import { useCurrentUser } from '../../lib/authProvider';
 import type { NotificationPreferences } from '@agenttailor/shared';
 
 export interface NotificationSettingsProps {
@@ -61,7 +61,7 @@ function ToggleRow({ label, description, checked, onChange, disabled = false }: 
 }
 
 export function NotificationSettings({ values, onChange, disabled = false }: NotificationSettingsProps) {
-  const { user } = useUser();
+  const { user } = useCurrentUser();
   const userEmail = user?.primaryEmailAddress?.emailAddress;
 
   return (

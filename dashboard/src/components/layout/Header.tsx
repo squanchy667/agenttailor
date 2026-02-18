@@ -1,5 +1,5 @@
-import { useClerk, useUser } from '@clerk/clerk-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useCurrentUser, useSignOut, AUTH_MODE } from '../../lib/authProvider';
 
 const ROUTE_LABELS: Record<string, string> = {
   '/projects': 'Projects',
@@ -13,8 +13,8 @@ export interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const signOut = useSignOut();
+  const { user } = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,7 +22,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   async function handleSignOut() {
     await signOut();
-    navigate('/login');
+    if (AUTH_MODE === 'clerk') navigate('/login');
   }
 
   const initials = user
