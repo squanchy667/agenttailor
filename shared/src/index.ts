@@ -24,3 +24,8 @@ export * from './schemas/mcp.js';
 export * from './schemas/gptActions.js';
 export * from './schemas/qualityScore.js';
 export * from './schemas/plan.js';
+export * from './schemas/agentRequirement.js';
+export * from './schemas/agentConfig.js';
+export * from './schemas/configSource.js';
+export * from './schemas/configTemplate.js';
+export * from './schemas/agentSession.js';

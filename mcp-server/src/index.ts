@@ -34,6 +34,9 @@ import { TAILOR_CONTEXT_TOOL, handleTailorContext } from './tools/tailorContext.
 import { SEARCH_DOCS_TOOL, handleSearchDocs } from './tools/searchDocs.js';
 import { UPLOAD_DOCUMENT_TOOL, handleUploadDocument } from './tools/uploadDocument.js';
 import { LIST_PROJECTS_TOOL, handleListProjects } from './tools/listProjects.js';
+import { GENERATE_AGENT_TOOL, handleGenerateAgent } from './tools/generateAgent.js';
+import { BROWSE_CONFIGS_TOOL, handleBrowseConfigs } from './tools/browseConfigs.js';
+import { EXPORT_AGENT_TOOL, handleExportAgent } from './tools/exportAgent.js';
 import {
   DOCUMENT_RESOURCE_TEMPLATES,
   PROJECTS_RESOURCE,
@@ -64,7 +67,15 @@ const server = new Server(
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: [TAILOR_CONTEXT_TOOL, SEARCH_DOCS_TOOL, UPLOAD_DOCUMENT_TOOL, LIST_PROJECTS_TOOL],
+    tools: [
+      TAILOR_CONTEXT_TOOL,
+      SEARCH_DOCS_TOOL,
+      UPLOAD_DOCUMENT_TOOL,
+      LIST_PROJECTS_TOOL,
+      GENERATE_AGENT_TOOL,
+      BROWSE_CONFIGS_TOOL,
+      EXPORT_AGENT_TOOL,
+    ],
   };
 });
 
@@ -80,6 +91,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return handleUploadDocument(apiClient, args ?? {});
     case 'list_projects':
       return handleListProjects(apiClient);
+    case 'generate_agent':
+      return handleGenerateAgent(apiClient, args ?? {});
+    case 'browse_config_library':
+      return handleBrowseConfigs(apiClient, args ?? {});
+    case 'export_agent':
+      return handleExportAgent(apiClient, args ?? {});
     default:
       return {
         content: [{ type: 'text' as const, text: `Unknown tool: ${name}` }],
@@ -161,7 +178,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('AgentTailor MCP server running on stdio');
-  const toolNames = [TAILOR_CONTEXT_TOOL, SEARCH_DOCS_TOOL, UPLOAD_DOCUMENT_TOOL, LIST_PROJECTS_TOOL].map((t) => t.name);
+  const toolNames = [TAILOR_CONTEXT_TOOL, SEARCH_DOCS_TOOL, UPLOAD_DOCUMENT_TOOL, LIST_PROJECTS_TOOL, GENERATE_AGENT_TOOL, BROWSE_CONFIGS_TOOL, EXPORT_AGENT_TOOL].map((t) => t.name);
   console.error(`  Tools: ${toolNames.join(', ')}`);
   console.error(`  API URL: ${process.env['AGENTTAILOR_API_URL'] ?? 'http://localhost:4000'}`);
 }

@@ -9,6 +9,9 @@ import { DocumentsPage } from './pages/DocumentsPage';
 import { TailoringPage } from './pages/TailoringPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { AgentBuilderPage } from './pages/AgentBuilderPage';
+import { AgentLibraryPage } from './pages/AgentLibraryPage';
+import { AgentDetailPage } from './pages/AgentDetailPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 const isLocal = AUTH_MODE !== 'clerk';
@@ -38,6 +41,9 @@ export function App() {
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="tailoring" element={<TailoringPage />} />
           <Route path="tailoring/:sessionId" element={<TailoringPage />} />
+          <Route path="agents/builder" element={<AgentBuilderPage />} />
+          <Route path="agents/library" element={<AgentLibraryPage />} />
+          <Route path="agents/:agentId" element={<AgentDetailPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

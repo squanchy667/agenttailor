@@ -173,6 +173,119 @@ export async function analyzeTask(input: string): Promise<TaskAnalysis> {
   };
 }
 
+// ── Agent Requirement Analysis ──────────────────────────────────────────────
+
+export interface AgentRequirementAnalysis {
+  role: string;
+  stack: string[];
+  domain: string;
+  complexity: string;
+  suggestedModel: 'haiku' | 'sonnet' | 'opus';
+  searchQueries: string[];
+}
+
+export async function analyzeAgentRequirement(
+  description: string,
+): Promise<AgentRequirementAnalysis> {
+  const trimmed = description.trim();
+
+  // Reuse existing analysis infrastructure
+  const domains = classifyDomains(trimmed);
+  const complexity = assessComplexity(trimmed, domains);
+  const entities = extractKeyEntities(trimmed);
+
+  // Detect stack from entities and content
+  const stack = detectStack(trimmed, entities);
+
+  // Detect role from description
+  const role = detectAgentRole(trimmed);
+
+  // Map domain
+  const domain = domains[0]?.toLowerCase() ?? 'general';
+
+  // Model selection based on complexity
+  let suggestedModel: 'haiku' | 'sonnet' | 'opus' = 'sonnet';
+  if (complexity === 'EXPERT') suggestedModel = 'opus';
+  else if (complexity === 'LOW') suggestedModel = 'haiku';
+
+  // Generate config-discovery-oriented search queries
+  const searchQueries = generateAgentSearchQueries(role, stack, domain);
+
+  return {
+    role,
+    stack,
+    domain,
+    complexity,
+    suggestedModel,
+    searchQueries,
+  };
+}
+
+function detectStack(text: string, entities: string[]): string[] {
+  const lower = text.toLowerCase();
+  const KNOWN_TECH = [
+    'react', 'vue', 'angular', 'svelte', 'nextjs', 'next.js', 'nuxt',
+    'typescript', 'javascript', 'python', 'rust', 'go', 'java', 'c#', 'swift',
+    'express', 'fastapi', 'django', 'flask', 'rails', 'spring',
+    'tailwind', 'css', 'scss', 'styled-components',
+    'postgresql', 'mysql', 'mongodb', 'redis', 'sqlite',
+    'prisma', 'drizzle', 'typeorm', 'sequelize',
+    'docker', 'kubernetes', 'aws', 'gcp', 'azure',
+    'unity', 'godot', 'unreal',
+    'vite', 'webpack', 'esbuild',
+    'node', 'deno', 'bun',
+    'graphql', 'trpc', 'rest',
+    'vitest', 'jest', 'playwright', 'cypress',
+  ];
+
+  const found = new Set<string>();
+  for (const tech of KNOWN_TECH) {
+    if (lower.includes(tech)) found.add(tech);
+  }
+
+  // Also check entities
+  for (const entity of entities) {
+    if (KNOWN_TECH.includes(entity.toLowerCase())) {
+      found.add(entity.toLowerCase());
+    }
+  }
+
+  return Array.from(found).slice(0, 10);
+}
+
+function detectAgentRole(text: string): string {
+  // Try to extract explicit role mentions
+  const rolePatterns = [
+    /(?:need|want|create|build)\s+(?:a|an)\s+(.+?)\s+(?:agent|assistant|helper)/i,
+    /(.+?)\s+(?:specialist|expert|agent)/i,
+    /(?:agent|assistant)\s+(?:for|that)\s+(.+?)(?:\.|,|$)/i,
+  ];
+
+  for (const pattern of rolePatterns) {
+    const match = text.match(pattern);
+    if (match?.[1] && match[1].length > 3 && match[1].length < 100) {
+      return match[1].trim();
+    }
+  }
+
+  // Fallback: use first significant phrase
+  const words = text.split(/\s+/).filter((w) => w.length > 3).slice(0, 5);
+  return words.join(' ') || 'General purpose';
+}
+
+function generateAgentSearchQueries(role: string, stack: string[], domain: string): string[] {
+  const queries: string[] = [];
+  const stackStr = stack.slice(0, 3).join(' ');
+
+  queries.push(`${role} ${stackStr} agent config`);
+  queries.push(`${stackStr} coding conventions best practices`);
+  if (domain !== 'general') {
+    queries.push(`${domain} ${stackStr} project rules`);
+  }
+
+  return queries.slice(0, 4);
+}
+
 const STOP_WORDS = new Set([
   'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
   'of', 'with', 'by', 'from', 'is', 'are', 'was', 'were', 'be', 'been',

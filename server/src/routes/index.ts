@@ -7,6 +7,8 @@ import searchRoutes from './search.js';
 import tailorRoutes from './tailor.js';
 import settingsRoutes from './settings.js';
 import analyticsRoutes from './analytics.js';
+import agentRoutes from './agents.js';
+import configRoutes from './configs.js';
 
 /**
  * Central router that mounts all API routes
@@ -26,6 +28,8 @@ router.use('/search', searchRoutes);
 router.use('/tailor', tailorRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/agents', agentRoutes);
+router.use('/configs', configRoutes);
 
 // API version info (unprotected)
 router.get('/info', (_req, res) => {

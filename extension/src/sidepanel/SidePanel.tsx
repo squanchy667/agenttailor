@@ -13,6 +13,7 @@ import { StatusIndicator } from './components/StatusIndicator.js';
 import { ContextPreview } from './components/ContextPreview.js';
 import { SourceList } from './components/SourceList.js';
 import { EditableContext } from './components/EditableContext.js';
+import { AgentBuilder } from './components/AgentBuilder.js';
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
@@ -258,10 +259,13 @@ function InjectedState({ onDismiss }: { onDismiss: () => void }) {
 
 // ─── Main SidePanel ───────────────────────────────────────────────────────────
 
+type PanelTab = 'context' | 'agent';
+
 export function SidePanel() {
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [editedContext, setEditedContext] = useState('');
+  const [activeTab, setActiveTab] = useState<PanelTab>('context');
 
   const {
     state,
@@ -341,6 +345,41 @@ export function SidePanel() {
         <div style={s.logo}>
           Agent<span style={s.logoAccent}>Tailor</span>
         </div>
+        {/* Tab switcher */}
+        <div style={{ display: 'flex', gap: '2px', marginLeft: '8px', backgroundColor: '#f1f5f9', borderRadius: '6px', padding: '2px' }}>
+          <button
+            onClick={() => setActiveTab('context')}
+            style={{
+              padding: '3px 10px',
+              fontSize: '11px',
+              fontWeight: activeTab === 'context' ? '600' : '400',
+              color: activeTab === 'context' ? '#4f46e5' : '#64748b',
+              backgroundColor: activeTab === 'context' ? '#ffffff' : 'transparent',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              boxShadow: activeTab === 'context' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+            }}
+          >
+            Context
+          </button>
+          <button
+            onClick={() => setActiveTab('agent')}
+            style={{
+              padding: '3px 10px',
+              fontSize: '11px',
+              fontWeight: activeTab === 'agent' ? '600' : '400',
+              color: activeTab === 'agent' ? '#4f46e5' : '#64748b',
+              backgroundColor: activeTab === 'agent' ? '#ffffff' : 'transparent',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              boxShadow: activeTab === 'agent' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+            }}
+          >
+            Agent
+          </button>
+        </div>
         {platform && (
           <span style={s.platformBadge}>
             {platform === 'chatgpt' ? 'ChatGPT' : 'Claude'}
@@ -350,11 +389,14 @@ export function SidePanel() {
 
       {/* ── Body ── */}
       <div style={s.body}>
-        {/* Idle */}
-        {showIdle && <IdleState isReady={isReady} platform={platform} />}
+        {/* Agent Builder Tab */}
+        {activeTab === 'agent' && <AgentBuilder />}
+
+        {/* Context Tab — original content */}
+        {activeTab === 'context' && showIdle && <IdleState isReady={isReady} platform={platform} />}
 
         {/* Tailoring / Error */}
-        {(showTailoring || showError) && (
+        {activeTab === 'context' && (showTailoring || showError) && (
           <div
             style={{
               display: 'flex',
@@ -383,10 +425,10 @@ export function SidePanel() {
         )}
 
         {/* Injected */}
-        {showInjected && <InjectedState onDismiss={resetToIdle} />}
+        {activeTab === 'context' && showInjected && <InjectedState onDismiss={resetToIdle} />}
 
         {/* Preview */}
-        {showPreview && (
+        {activeTab === 'context' && showPreview && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {/* Quality score banner */}
             {metadata && (
@@ -445,7 +487,7 @@ export function SidePanel() {
       </div>
 
       {/* ── Footer (Preview state only) ── */}
-      {showPreview && (
+      {activeTab === 'context' && showPreview && (
         <footer style={s.footer}>
           <button
             onClick={handleInject}

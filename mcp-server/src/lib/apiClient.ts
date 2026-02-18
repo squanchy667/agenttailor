@@ -147,4 +147,55 @@ export class ApiClient {
   }> {
     return this.request('GET', `/api/tailor/sessions/${sessionId}`);
   }
+
+  // ── Agent Factory endpoints ─────────────────────────────────────────────
+
+  async generateAgent(input: {
+    role: string;
+    stack: string[];
+    domain: string;
+    description: string;
+    targetFormat: string;
+    projectId?: string;
+  }): Promise<{
+    sessionId: string;
+    exportedContent: string;
+    qualityScore: number;
+    confidence: { level: string; score: number; reason: string };
+    configSourceCount: number;
+    processingTimeMs: number;
+  }> {
+    return this.request('POST', '/api/agents/generate', input);
+  }
+
+  async browseConfigs(params: {
+    stack?: string;
+    domain?: string;
+    category?: string;
+    query?: string;
+  }): Promise<{
+    templates: Array<{
+      id: string;
+      name: string;
+      category: string;
+      stack: string[];
+      domain: string;
+      rating: number;
+      usageCount: number;
+      isBuiltIn: boolean;
+    }>;
+    total: number;
+  }> {
+    const searchParams = new URLSearchParams();
+    if (params.stack) searchParams.set('stack', params.stack);
+    if (params.domain) searchParams.set('domain', params.domain);
+    if (params.category) searchParams.set('category', params.category);
+    if (params.query) searchParams.set('q', params.query);
+    const qs = searchParams.toString();
+    return this.request('GET', `/api/configs/library${qs ? `?${qs}` : ''}`);
+  }
+
+  async exportAgent(agentId: string, format: string): Promise<{ content: string; format: string }> {
+    return this.request('POST', `/api/agents/${agentId}/export`, { format });
+  }
 }
